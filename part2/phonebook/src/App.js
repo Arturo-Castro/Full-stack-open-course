@@ -17,7 +17,15 @@ const App = () => {
     const personObject = {
       name: newName
     }
-    setPersons(persons.concat(personObject))
+    persons.map((item) => {
+      if(item.name === personObject.name){
+        return alert(`${personObject.name} is alredy added to the phonebook`)
+      }
+      return "" 
+    })
+    setPersons(persons.concat(personObject).filter((item, index, self) => self.findIndex(
+      (t) => {return (t.name === item.name)}) === index
+    ))
     setNewName("")
   }
 
