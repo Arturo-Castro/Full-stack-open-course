@@ -1,25 +1,29 @@
 import { useState } from 'react'
 
 const Name = (props) => {
+
   return(
     <div>{props.person.name} {props.person.number}</div>
-  )
+  ) 
 }
 
 const App = () => {
   const [persons, setPersons] = useState([
-    { name: 'Arto Hellas',
-      number: '3278547785'
-    }
-  ]) 
+    { name: 'Arto Hellas', number: '040-123456', id: 1 },
+    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
+    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
+    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
+  ])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
+  const [filteredPersons, setFilteredPersons] = useState([...persons])
 
   const addPerson = (e) => {
     e.preventDefault()
     const personObject = {
       name: newName,
-      number: newNumber
+      number: newNumber,
+      id: Date.now()
     }
     persons.map((item) => {
       if(item.name === personObject.name){
@@ -30,6 +34,7 @@ const App = () => {
     setPersons(persons.concat(personObject).filter((item, index, self) => self.findIndex(
       (t) => {return (t.name === item.name)}) === index
     ))
+    setFilteredPersons([...persons, personObject])
     setNewName("")
     setNewNumber("")
   }
@@ -42,10 +47,18 @@ const App = () => {
     setNewNumber(e.target.value)
   }
 
+  const handleFilterChange = (e) => {
+    setPersons(filteredPersons.filter(item => item.name.toLocaleLowerCase().includes((e.target.value).toLocaleLowerCase())))
+  }
+
   return (
     <div>
       <h2>Phonebook</h2>
+      <div>
+        filter shown with <input onChange={handleFilterChange}/>
+      </div>
       <form onSubmit={addPerson}>
+        <h2>add a new</h2>
         <div>
           name: <input value={newName} onChange={handleNameChange}/>
         </div>
