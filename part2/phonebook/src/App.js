@@ -53,26 +53,29 @@ const App = () => {
       .get("http://localhost:3001/persons")
       .then(response => {
         setPersons(response.data)
-        setFilteredPersons([...persons])
+        setFilteredPersons([...response.data])
       })
   }, [])
-
+  
   const addPerson = (e) => {
     e.preventDefault()
     const personObject = {
       name: newName,
       number: newNumber,
-      id: Date.now()
     }
+    axios
+      .post("http://localhost:3001/persons", personObject)
+      .then(response => {
+        setPersons(persons.concat(response.data).filter((item, index, self) => self.findIndex(
+          (t) => {return (t.name === item.name)}) === index
+        ))
+      })
     persons.map((item) => {
       if(item.name === personObject.name){
         return alert(`${personObject.name} is alredy added to the phonebook`)
       }
       return "" 
     })
-    setPersons(persons.concat(personObject).filter((item, index, self) => self.findIndex(
-      (t) => {return (t.name === item.name)}) === index
-    ))
     setFilteredPersons([...persons, personObject])
     setNewName("")
     setNewNumber("")
