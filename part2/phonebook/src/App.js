@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from "axios"
+import phonebookService from "./services/phonebook"
 
 const Filter = (props) => {
   return(
@@ -26,9 +26,21 @@ const PersonForm = (props) => {
 }
 
 const Name = (props) => {
+  const handleDelete = () => {
+    if(window.confirm(`Delete ${props.person.name}?`)){
+      phonebookService
+        .eliminate(props.person.id)
+        window.location.reload()
+    }
+  }
 
   return(
-    <div>{props.person.name} {props.person.number}</div>
+    <div>
+      {props.person.name} {props.person.number}
+      <button onClick={handleDelete}>
+        delete
+      </button>
+    </div>
   ) 
 }
 
@@ -49,12 +61,18 @@ const App = () => {
   const [filteredPersons, setFilteredPersons] = useState([])
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3001/persons")
+    phonebookService
+      .getAll()
       .then(response => {
         setPersons(response.data)
         setFilteredPersons([...response.data])
       })
+   /*  axios
+      .get("http://localhost:3001/persons")
+      .then(response => {
+        setPersons(response.data)
+        setFilteredPersons([...response.data])
+      }) */
   }, [])
   
   const addPerson = (e) => {
@@ -63,13 +81,20 @@ const App = () => {
       name: newName,
       number: newNumber,
     }
-    axios
-      .post("http://localhost:3001/persons", personObject)
+    phonebookService
+      .create(personObject)
       .then(response => {
         setPersons(persons.concat(response.data).filter((item, index, self) => self.findIndex(
           (t) => {return (t.name === item.name)}) === index
         ))
       })
+    /* axios
+      .post("http://localhost:3001/persons", personObject)
+      .then(response => {
+        setPersons(persons.concat(response.data).filter((item, index, self) => self.findIndex(
+          (t) => {return (t.name === item.name)}) === index
+        ))
+      }) */
     persons.map((item) => {
       if(item.name === personObject.name){
         return alert(`${personObject.name} is alredy added to the phonebook`)
