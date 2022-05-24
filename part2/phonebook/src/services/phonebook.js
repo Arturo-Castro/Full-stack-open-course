@@ -14,4 +14,5 @@ const eliminate = id => {
   return axios.delete(`http://localhost:3001/persons/${id}`)
 } 
 
-export default { getAll, create, eliminate }
+const phonebookService = { getAll, create, eliminate }
+export default phonebookService

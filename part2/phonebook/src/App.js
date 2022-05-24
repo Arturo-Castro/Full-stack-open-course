@@ -30,7 +30,7 @@ const Name = (props) => {
     if(window.confirm(`Delete ${props.person.name}?`)){
       phonebookService
         .eliminate(props.person.id)
-        window.location.reload()
+        props.setPersons(props.persons.filter(person => person.name !== props.person.name))
     }
   }
 
@@ -48,7 +48,7 @@ const Person = (props) => {
   return(
     <div>
       {props.persons.map(person => 
-        <Name key={person.name} person={person}/>
+        <Name key={person.name} person={person} persons={props.persons} setPersons={props.setPersons}/>
       )}
     </div>
   )
@@ -67,12 +67,6 @@ const App = () => {
         setPersons(response.data)
         setFilteredPersons([...response.data])
       })
-   /*  axios
-      .get("http://localhost:3001/persons")
-      .then(response => {
-        setPersons(response.data)
-        setFilteredPersons([...response.data])
-      }) */
   }, [])
   
   const addPerson = (e) => {
@@ -88,13 +82,6 @@ const App = () => {
           (t) => {return (t.name === item.name)}) === index
         ))
       })
-    /* axios
-      .post("http://localhost:3001/persons", personObject)
-      .then(response => {
-        setPersons(persons.concat(response.data).filter((item, index, self) => self.findIndex(
-          (t) => {return (t.name === item.name)}) === index
-        ))
-      }) */
     persons.map((item) => {
       if(item.name === personObject.name){
         return alert(`${personObject.name} is alredy added to the phonebook`)
@@ -131,7 +118,7 @@ const App = () => {
         handleNumberChange={handleNumberChange}
       />
       <h2>Numbers</h2>
-      <Person persons={persons}/>
+      <Person persons={persons} setPersons={setPersons}/>
     </div>
   )
 }
