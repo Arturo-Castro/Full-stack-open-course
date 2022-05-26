@@ -30,7 +30,7 @@ const Name = (props) => {
     if(window.confirm(`Delete ${props.person.name}?`)){
       phonebookService
         .eliminate(props.person.id)
-        props.setPersons(props.persons.filter(person => person.name !== props.person.name))
+      props.setPersons(props.persons.filter(person => person.name !== props.person.name))
     }
   }
 
@@ -73,26 +73,38 @@ const App = () => {
     e.preventDefault()
     const personObject = {
       name: newName,
-      number: newNumber,
+      number: newNumber
     }
-    phonebookService
+
+    if(persons.some(person => person.name === personObject.name)){
+      if(window.confirm(`${personObject.name} is alredy added to the phonebook, replace the old number with a new one?`)){
+        const index = persons.findIndex(person => {
+          return person.name === personObject.name
+        })
+        phonebookService
+          .replace(persons[index].id, personObject)  
+        const newPerson = persons.map((person) => {
+          if (person.name === personObject.name) {
+             
+            return {...person, name: newName, number: newNumber}
+          } else {
+            return person
+          }
+        })
+        setPersons(newPerson)
+      }
+      
+    } else {
+      phonebookService
       .create(personObject)
       .then(response => {
-        setPersons(persons.concat(response.data).filter((item, index, self) => self.findIndex(
-          (t) => {return (t.name === item.name)}) === index
-        ))
+        setPersons(persons.concat(response.data))
       })
-    persons.map((item) => {
-      if(item.name === personObject.name){
-        return alert(`${personObject.name} is alredy added to the phonebook`)
-      }
-      return "" 
-    })
+    }
     setFilteredPersons([...persons, personObject])
     setNewName("")
     setNewNumber("")
   }
-
   const handleNameChange = (e) => {
     setNewName(e.target.value)
   }
