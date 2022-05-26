@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import phonebookService from "./services/phonebook"
+import "./index.css"
 
 const Filter = (props) => {
   return(
@@ -54,11 +55,23 @@ const Person = (props) => {
   )
 }
 
+const Notification = (props) => {
+  if(props.message === null){
+    return null
+  } else if((props.message.includes("Added")) || (props.message.includes("Replaced")))
+    return(
+      <div className='success'>
+        {props.message}
+      </div>
+    )
+}
+
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filteredPersons, setFilteredPersons] = useState([])
+  const [successMessage, setSuccessMessage] = useState(null)
 
   useEffect(() => {
     phonebookService
@@ -92,6 +105,10 @@ const App = () => {
           }
         })
         setPersons(newPerson)
+        setSuccessMessage(`Replaced ${persons[index].name}`)
+        setTimeout(() => {
+          setSuccessMessage(null)
+        }, 5000)
       }
       
     } else {
@@ -99,6 +116,10 @@ const App = () => {
       .create(personObject)
       .then(response => {
         setPersons(persons.concat(response.data))
+        setSuccessMessage(`Added ${newName}`)
+        setTimeout(() => {
+          setSuccessMessage(null)
+        }, 5000)
       })
     }
     setFilteredPersons([...persons, personObject])
@@ -120,6 +141,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={successMessage}/>
       <Filter handleFilterChange={handleFilterChange}/>
       <h3>add a new</h3>
       <PersonForm
