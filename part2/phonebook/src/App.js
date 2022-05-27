@@ -31,7 +31,16 @@ const Name = (props) => {
     if(window.confirm(`Delete ${props.person.name}?`)){
       phonebookService
         .eliminate(props.person.id)
+        .catch(error => {
+          props.setMessage(
+            `${props.person.name} was already removed from server`
+          )
+          setTimeout(() => {
+            props.setMessage(null)
+          }, 5000)
+        })
       props.setPersons(props.persons.filter(person => person.name !== props.person.name))
+      
     }
   }
 
@@ -49,7 +58,7 @@ const Person = (props) => {
   return(
     <div>
       {props.persons.map(person => 
-        <Name key={person.name} person={person} persons={props.persons} setPersons={props.setPersons}/>
+        <Name key={person.name} person={person} persons={props.persons} setPersons={props.setPersons} setMessage={props.setMessage}/>
       )}
     </div>
   )
@@ -58,12 +67,19 @@ const Person = (props) => {
 const Notification = (props) => {
   if(props.message === null){
     return null
-  } else if((props.message.includes("Added")) || (props.message.includes("Replaced")))
-    return(
-      <div className='success'>
-        {props.message}
-      </div>
-    )
+  } else if((props.message.includes("Added")) || (props.message.includes("Replaced"))){
+      return(
+        <div className='success'>
+          {props.message}
+        </div>
+      )
+    } else {
+      return(
+        <div className='error'>
+          {props.message}
+        </div>
+      )
+    }
 }
 
 const App = () => {
@@ -71,7 +87,7 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filteredPersons, setFilteredPersons] = useState([])
-  const [successMessage, setSuccessMessage] = useState(null)
+  const [Message, setMessage] = useState(null)
 
   useEffect(() => {
     phonebookService
@@ -105,9 +121,9 @@ const App = () => {
           }
         })
         setPersons(newPerson)
-        setSuccessMessage(`Replaced ${persons[index].name}`)
+        setMessage(`Replaced ${persons[index].name}`)
         setTimeout(() => {
-          setSuccessMessage(null)
+          setMessage(null)
         }, 5000)
       }
       
@@ -116,9 +132,9 @@ const App = () => {
       .create(personObject)
       .then(response => {
         setPersons(persons.concat(response.data))
-        setSuccessMessage(`Added ${newName}`)
+        setMessage(`Added ${newName}`)
         setTimeout(() => {
-          setSuccessMessage(null)
+          setMessage(null)
         }, 5000)
       })
     }
@@ -141,7 +157,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <Notification message={successMessage}/>
+      <Notification message={Message}/>
       <Filter handleFilterChange={handleFilterChange}/>
       <h3>add a new</h3>
       <PersonForm
@@ -152,7 +168,7 @@ const App = () => {
         handleNumberChange={handleNumberChange}
       />
       <h2>Numbers</h2>
-      <Person persons={persons} setPersons={setPersons}/>
+      <Person persons={persons} setPersons={setPersons} setMessage={setMessage}/>
     </div>
   )
 }
